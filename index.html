@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distance Guessing Game</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="setup-overlay" class="overlay">
+        <div class="setup">
+            <h2>Game Setup</h2>
+            <label>Number of Teams (2–5): <input type="number" id="team-count" min="2" max="5" value="2"></label>
+            <label>Number of Rounds: <input type="number" id="round-count" min="1" value="3"></label>
+            <button id="start-game">Start Game</button>
+        </div>
+    </div>
+
+    <header>
+        <h1 id="prompt-text">Prompt goes here</h1>
+    </header>
+
+    <main id="teams-container" class="teams"></main>
+
+    <section id="controls" class="controls">
+        <button id="submit-guesses">Submit Guesses</button>
+        <button id="next-round" disabled>Next Round</button>
+    </section>
+
+    <footer>
+        <h2>Scoreboard</h2>
+        <ul id="scoreboard"></ul>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
