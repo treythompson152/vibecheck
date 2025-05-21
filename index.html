@@ -1,37 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distance Guessing Game</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wavelength-Style Game</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div id="setup-overlay" class="overlay">
-        <div class="setup">
-            <h2>Game Setup</h2>
-            <label>Number of Teams (2–5): <input type="number" id="team-count" min="2" max="5" value="2"></label>
-            <label>Number of Rounds: <input type="number" id="round-count" min="1" value="3"></label>
-            <button id="start-game">Start Game</button>
-        </div>
-    </div>
 
+  <!-- GAME SCREEN (always present) -->
+  <div id="game-screen" class="screen">
     <header>
-        <h1 id="prompt-text">Prompt goes here</h1>
+      <h1 id="prompt" class="prompt">Loading prompt…</h1>
     </header>
-
-    <main id="teams-container" class="teams"></main>
-
-    <section id="controls" class="controls">
+    <main>
+      <div id="teams-container" class="teams"></div>
+      <div class="controls">
         <button id="submit-guesses">Submit Guesses</button>
-        <button id="next-round" disabled>Next Round</button>
-    </section>
-
+      </div>
+    </main>
     <footer>
-        <h2>Scoreboard</h2>
-        <ul id="scoreboard"></ul>
+      <div id="scoreboard" class="scoreboard"></div>
     </footer>
+  </div>
 
-    <script src="js/script.js"></script>
+  <!-- SETUP MODAL -->
+  <div id="setup-screen" class="popup">
+    <div class="popup-content">
+      <h1>Game Setup</h1>
+      <div class="setup-field">
+        <label for="team-count">Number of Teams:</label>
+        <select id="team-count">
+          <option>2</option><option>3</option>
+          <option>4</option><option>5</option>
+        </select>
+      </div>
+      <div class="setup-field">
+        <label for="rounds-input">Number of Rounds:</label>
+        <input type="number" id="rounds-input" min="1" value="5" />
+      </div>
+      <div id="names-container" class="setup-rows"></div>
+      <button id="start-button">Start Game</button>
+    </div>
+  </div>
+
+  <!-- ROUND-START POPUP -->
+  <div id="round-popup" class="popup hidden">
+    <div class="popup-content">
+      <h2>Next Up</h2>
+      <div id="round-players" class="round-players"></div>
+      <div id="round-scoreboard" class="round-scoreboard"></div>
+      <button id="round-start">Next Round</button>
+    </div>
+  </div>
+
+  <!-- END-OF-GAME POPUP -->
+  <div id="end-popup" class="popup hidden">
+    <div class="popup-content">
+      <h2>Final Rankings</h2>
+      <ol id="ranking-list"></ol>
+      <button id="restart">Play Again</button>
+    </div>
+  </div>
+
+  <script defer src="script.js"></script>
 </body>
 </html>

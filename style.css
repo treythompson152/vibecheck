@@ -1,0 +1,164 @@
+.hidden { display: none !important; }
+
+/* theme + fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+:root {
+  --bg: #1a1a2e; --fg: #ececec; --accent: #ff6ec7;
+  --gold-bg: #ffd70033; --silver-bg: #c0c0c033; --bronze-bg: #cd7f3233;
+}
+* { box-sizing: border-box; margin:0; padding:0; }
+html,body {
+  height:100%; font-family:'Poppins',sans-serif;
+  background:var(--bg); color:var(--fg); overflow:hidden;
+}
+.screen { display:flex; flex-direction:column; height:100%; }
+
+/* Prompt */
+header {
+  background:linear-gradient(90deg,#29294b,#1a1a2e);
+  padding:1rem; text-align:center;
+}
+.prompt {
+  font-size:4rem; font-weight:800;
+  color:var(--accent);
+}
+
+/* Main & Teams */
+main { flex:1; display:flex; flex-direction:column; }
+.teams {
+  flex:1; display:flex; flex-wrap:wrap;
+  justify-content:center; align-items:center;
+  gap:1rem; padding:1rem; width:100%; height:100%; overflow:auto;
+}
+.team {
+  background:#2b2b4b; border-radius:12px;
+  padding:1.5rem; flex:1 1 0; height:100%;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center;
+  transition:transform .3s,border-color .3s;
+}
+.team:hover { transform:translateY(-5px); border:2px solid var(--accent); }
+.team h3 { font-size:1.75rem; margin-bottom:.5rem; font-weight:600; }
+.assigned-number {
+  font-size:5rem; font-weight:800;
+  background:linear-gradient(45deg,#ff6ec7,#42dff4);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  margin-bottom:1.5rem;
+}
+
+/* Guess input */
+input.guess {
+  width:100%; max-width:200px;
+  padding:.75rem; font-size:1.5rem;
+  color:#fff; background:transparent;
+  border:none; border-bottom:2px solid var(--fg);
+  text-align:center; transition:border-color .3s;
+}
+input.guess:focus { outline:none; border-color:var(--accent); }
+
+/* Controls */
+.controls {
+  padding:1rem; text-align:center;
+  background:rgba(0,0,0,0.2);
+}
+button {
+  font-size:1.5rem; font-weight:600;
+  padding:1rem 2rem; margin:.5rem;
+  background:var(--accent); color:#1a1a2e;
+  border:none; border-radius:8px;
+  cursor:pointer;
+  transition:box-shadow .3s,transform .2s;
+}
+button:hover {
+  box-shadow:0 0 15px var(--accent);
+  transform:translateY(-2px);
+}
+#round-start { background:#28a745!important; }
+
+/* Footer Scoreboard */
+footer {
+  background:linear-gradient(90deg,#29294b,#1a1a2e);
+  padding:1rem; text-align:center;
+}
+.scoreboard ul {
+  display:flex; justify-content:center;
+  gap:2rem; list-style:none;
+  margin:0; padding:0;
+}
+.scoreboard li {
+  font-size:1.5rem; padding:.5rem 1rem;
+  border-radius:6px; cursor:pointer;
+  transition:color .3s;
+}
+.scoreboard li:hover { color:var(--accent); }
+
+/* Modals */
+.popup {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.85);
+  display:flex; align-items:center; justify-content:center;
+  z-index:1000;
+}
+.popup-content {
+  background:var(--bg); border:2px solid var(--accent);
+  border-radius:12px; padding:3rem 2rem;
+  width:90%; max-width:500px;
+  text-align:center; box-shadow:0 0 20px var(--accent);
+}
+.popup-content h1,
+.popup-content h2 {
+  font-size:3rem; margin-bottom:2.5rem;
+  color:var(--accent);
+}
+
+/* Setup Modal Fields */
+.setup-field {
+  margin-bottom:2rem;
+}
+.setup-field label {
+  display:block; font-size:1.75rem;
+  margin-bottom:.5rem; color:var(--fg);
+}
+.setup-field select,
+.setup-field input[type="number"],
+.setup-field input[type="text"] {
+  width:100%;
+  padding:1rem;
+  font-size:1.75rem;
+  background:#2b2b4b; color:#fff;
+  border:none; border-bottom:2px solid var(--fg);
+  transition:border-color .3s;
+}
+.setup-field select:focus,
+.setup-field input:focus {
+  outline:none; border-color:var(--accent);
+}
+
+/* Round-Start Popup */
+.round-players p {
+  font-size:1.75rem; margin:1.5rem 0;
+}
+#round-scoreboard h2 {
+  font-size:2.25rem; margin:2rem 0 1rem;
+  color:var(--accent);
+}
+#round-scoreboard ul {
+  list-style:none; margin:0 0 2rem; padding:0;
+}
+#round-scoreboard li {
+  font-size:1.5rem; margin:.75rem 0;
+  padding:.5rem; border-radius:6px;
+  cursor:pointer; transition:color .3s;
+}
+
+/* End-of-Game Popup */
+.popup-content ol {
+  list-style:none; padding-left:0; margin:2rem 0;
+}
+.popup-content li {
+  font-size:1.75rem; margin:1rem 0; padding:.75rem;
+  border-radius:6px;
+}
+.popup-content li.gold   { background:var(--gold-bg); }
+.popup-content li.silver { background:var(--silver-bg); }
+.popup-content li.bronze { background:var(--bronze-bg); }
