@@ -1,6 +1,4 @@
 .hidden { display: none !important; }
-
-/* theme + fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
 :root {
   --bg: #1a1a2e; --fg: #ececec; --accent: #ff6ec7;
