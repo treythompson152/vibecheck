@@ -29,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let rounds  = 5;
   let currentRound = 0;
 
-  // Load & shuffle prompts
+  // 1) Load prompts.txt
   fetch('prompts.txt')
     .then(r => r.text())
-    .then(txt => prompts = shuffle(txt.trim().split('\n')))
+    .then(txt => prompts = txt.trim().split('\n'))
     .catch(() => prompts = ['No prompts available']);
 
   // 2) Build dynamic setup inputs
@@ -42,19 +42,20 @@ document.addEventListener('DOMContentLoaded', () => {
       namesContainer.innerHTML += `
         <div class="setup-field">
           <label for="team-${i}-names">Team ${i+1} Players:</label>
-          <input type="text" id="team-${i}-names" placeholder="Alice,Bob,Charlie" />
+          <input type="text" id="team-${i}-names"
+                 placeholder="Alice,Bob,Charlie" />
         </div>`;
     }
   }
   teamCountSel.addEventListener('change', buildNameInputs);
   buildNameInputs();
 
-  // Start game
+  // 3) Start game
   startBtn.addEventListener('click', () => {
     rounds = Math.max(1, parseInt(roundsInput.value, 10) || 5);
     teams = [];
     for (let i = 0; i < +teamCountSel.value; i++) {
-      const raw = document.getElementById(`team-${i}-names`).value.trim();
+      const raw   = document.getElementById(`team-${i}-names`).value.trim();
       const names = raw ? raw.split(/\s*,\s*/) : [`Team${i+1}`];
       teams.push({ players: names, queue: shuffle(names), total: 0 });
     }
@@ -96,7 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }</ul>`;
     roundBoard.querySelectorAll('li').forEach((li,i) => {
       li.addEventListener('click', () => {
-        const ans = prompt(`New score for ${teams[i].players.join(', ')}:`, teams[i].total);
+        const ans = prompt(
+          `New score for ${teams[i].players.join(', ')}:`,
+          teams[i].total
+        );
         const v = parseInt(ans, 10);
         if (!isNaN(v)) {
           teams[i].total = v;
@@ -105,13 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+
     roundPopup.classList.remove('hidden');
   }
 
   // 6) Advance to the round
   roundStartBtn.addEventListener('click', () => {
     roundPopup.classList.add('hidden');
-    if (currentRound >= rounds) showEndPopup(); else startRound();
+    if (currentRound >= rounds) showEndPopup();
+    else startRound();
   });
 
   // 7) Render a round: pick & remove 3 prompts, then show cards
@@ -145,18 +151,22 @@ document.addEventListener('DOMContentLoaded', () => {
                  placeholder="teams guess" />
         </div>`;
     });
+
     document.querySelector('.controls').classList.remove('hidden');
     currentRound++;
   }
 
-  // Footer scoreboard
+  // 8) Footer scoreboard (click-to-edit)
   function renderScoreboard() {
     scoreboardDiv.innerHTML = `<ul>${
       teams.map(t => `<li>${t.players.join(', ')}: ${t.total}</li>`).join('')
     }</ul>`;
     scoreboardDiv.querySelectorAll('li').forEach((li, i) => {
       li.addEventListener('click', () => {
-        const ans = prompt(`New score for ${teams[i].players.join(', ')}:`, teams[i].total);
+        const ans = prompt(
+          `New score for ${teams[i].players.join(', ')}:`,
+          teams[i].total
+        );
         const v = parseInt(ans, 10);
         if (!isNaN(v)) {
           teams[i].total = v;
@@ -166,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Final rankings
+  // 9) Final rankings popup
   function showEndPopup() {
     rankingList.innerHTML = '';
     [...teams]
@@ -181,7 +191,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   restartBtn.addEventListener('click', () => location.reload());
 
-  // utils
-  function shuffle(arr) { return arr.slice().sort(() => Math.random() - 0.5); }
-  function pickNext(team) { if (!team.queue.length) team.queue = shuffle(team.players); return team.queue.shift(); }
+  // Utilities
+  function shuffle(arr) {
+    return arr.slice().sort(() => Math.random() - 0.5);
+  }
+  function pickNext(team) {
+    if (!team.queue.length) team.queue = shuffle(team.players);
+    return team.queue.shift();
+  }
 });
