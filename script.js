@@ -1,4 +1,6 @@
+// script.js
 document.addEventListener('DOMContentLoaded', () => {
+  // UI references
   const setupScreen    = document.getElementById('setup-screen');
   const gameScreen     = document.getElementById('game-screen');
   const roundPopup     = document.getElementById('round-popup');
@@ -21,7 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const rankingList    = document.getElementById('ranking-list');
   const restartBtn     = document.getElementById('restart');
 
-  let prompts = [], teams = [], rounds = 5, currentRound = 0;
+  // State
+  let prompts = [];
+  let teams   = [];
+  let rounds  = 5;
+  let currentRound = 0;
 
   // Load & shuffle prompts
   fetch('prompts.txt')
@@ -29,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(txt => prompts = shuffle(txt.trim().split('\n')))
     .catch(() => prompts = ['No prompts available']);
 
-  // Build setup inputs
+  // 2) Build dynamic setup inputs
   function buildNameInputs() {
     namesContainer.innerHTML = '';
     for (let i = 0; i < +teamCountSel.value; i++) {
@@ -57,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showRoundPopup();
   });
 
-  // Submit guesses + validation
+  // 4) Submit guesses (validate + score)
   submitBtn.addEventListener('click', () => {
     for (let i = 0; i < teams.length; i++) {
       if (document.querySelector(`#team-${i} .guess`).value.trim() === '') {
@@ -65,28 +71,30 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     teams.forEach((t, i) => {
-      const g = +document.querySelector(`#team-${i} .guess`).value;
-      t.total += Math.abs(g - t.lastNumber);
+      const guess = +document.querySelector(`#team-${i} .guess`).value;
+      t.total += Math.abs(guess - t.lastNumber);
     });
     renderScoreboard();
     document.querySelector('.controls').classList.add('hidden');
-    if (currentRound >= rounds) showEndPopup(); else showRoundPopup();
+
+    if (currentRound >= rounds) showEndPopup();
+    else showRoundPopup();
   });
 
-  // Display Next-Up popup
+  // 5) Interstitial: Next-Up popup
   function showRoundPopup() {
-    // show next players
+    // Pick next player for each team
     roundPlayers.innerHTML = teams.map(t => {
       const p = pickNext(t);
       t.currentPlayer = p;
       return `<p><strong>${p}</strong></p>`;
     }).join('');
 
-    // leaderboard
+    // Show current leaderboard
     roundBoard.innerHTML = `<h2>Leaderboard</h2><ul>${
       teams.map(t => `<li>${t.players.join(', ')}: ${t.total}</li>`).join('')
     }</ul>`;
-    roundBoard.querySelectorAll('li').forEach((li, i) => {
+    roundBoard.querySelectorAll('li').forEach((li,i) => {
       li.addEventListener('click', () => {
         const ans = prompt(`New score for ${teams[i].players.join(', ')}:`, teams[i].total);
         const v = parseInt(ans, 10);
@@ -100,19 +108,31 @@ document.addEventListener('DOMContentLoaded', () => {
     roundPopup.classList.remove('hidden');
   }
 
-  // Next Round button in popup
+  // 6) Advance to the round
   roundStartBtn.addEventListener('click', () => {
     roundPopup.classList.add('hidden');
     if (currentRound >= rounds) showEndPopup(); else startRound();
   });
 
-  // Render a round: display three prompts and cards
+  // 7) Render a round: pick & remove 3 prompts, then show cards
   function startRound() {
-    // display three prompts
+    // Safely pick 3 unique prompts and remove them from array
+    const roundPrompts = [];
     for (let i = 0; i < 3; i++) {
-      promptEls[i].textContent = prompts[currentRound + i] || '';
+      if (prompts.length === 0) {
+        roundPrompts.push('No prompt available');
+      } else {
+        const idx = Math.floor(Math.random() * prompts.length);
+        roundPrompts.push(prompts.splice(idx, 1)[0]);
+      }
     }
 
+    // Display them
+    promptEls.forEach((el, idx) => {
+      el.textContent = `Prompt ${idx+1}: ${roundPrompts[idx]}`;
+    });
+
+    // Render each team’s card with the active player
     teamsContainer.innerHTML = '';
     teams.forEach((t, i) => {
       const num = Math.floor(Math.random() * 100) + 1;
@@ -121,7 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="team" id="team-${i}">
           <h3>${t.currentPlayer}</h3>
           <div class="assigned-number">${num}</div>
-          <input type="number" class="guess" placeholder="teams guess" />
+          <input type="number" class="guess"
+                 placeholder="teams guess" />
         </div>`;
     });
     document.querySelector('.controls').classList.remove('hidden');
@@ -148,12 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Final rankings
   function showEndPopup() {
     rankingList.innerHTML = '';
-    [...teams].sort((a, b) => a.total - b.total).forEach((t, i) => {
-      const li = document.createElement('li');
-      li.className = ['gold', 'silver', 'bronze'][i] || '';
-      li.textContent = `${t.players.join(', ')} — ${t.total} pts`;
-      rankingList.appendChild(li);
-    });
+    [...teams]
+      .sort((a,b) => a.total - b.total)
+      .forEach((t, i) => {
+        const li = document.createElement('li');
+        li.className = ['gold','silver','bronze'][i] || '';
+        li.textContent = `${t.players.join(', ')} — ${t.total} pts`;
+        rankingList.appendChild(li);
+      });
     endPopup.classList.remove('hidden');
   }
   restartBtn.addEventListener('click', () => location.reload());
