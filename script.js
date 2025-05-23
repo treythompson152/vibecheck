@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  /* -- references -- */
   const setupScreen    = document.getElementById('setup-screen');
   const gameScreen     = document.getElementById('game-screen');
   const roundPopup     = document.getElementById('round-popup');
@@ -8,7 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const teamCountSel   = document.getElementById('team-count');
   const roundsInput    = document.getElementById('rounds-input');
   const startBtn       = document.getElementById('start-button');
-  const promptEl       = document.getElementById('prompt');
+  const promptEls      = [
+    document.getElementById('prompt-0'),
+    document.getElementById('prompt-1'),
+    document.getElementById('prompt-2')
+  ];
   const teamsContainer = document.getElementById('teams-container');
   const submitBtn      = document.getElementById('submit-guesses');
   const roundStartBtn  = document.getElementById('round-start');
@@ -18,16 +21,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const rankingList    = document.getElementById('ranking-list');
   const restartBtn     = document.getElementById('restart');
 
-  /* -- state -- */
   let prompts = [], teams = [], rounds = 5, currentRound = 0;
 
-  // load prompts
+  // Load & shuffle prompts
   fetch('prompts.txt')
     .then(r => r.text())
-    .then(txt => prompts = txt.trim().split('\n'))
-    .catch(()=>prompts=['No prompts']);
+    .then(txt => prompts = shuffle(txt.trim().split('\n')))
+    .catch(() => prompts = ['No prompts available']);
 
-  // build setup inputs
+  // Build setup inputs
   function buildNameInputs() {
     namesContainer.innerHTML = '';
     for (let i = 0; i < +teamCountSel.value; i++) {
@@ -41,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   teamCountSel.addEventListener('change', buildNameInputs);
   buildNameInputs();
 
-  // start game
+  // Start game
   startBtn.addEventListener('click', () => {
     rounds = Math.max(1, parseInt(roundsInput.value, 10) || 5);
     teams = [];
@@ -55,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showRoundPopup();
   });
 
-  // validate & submit guesses
+  // Submit guesses + validation
   submitBtn.addEventListener('click', () => {
     for (let i = 0; i < teams.length; i++) {
       if (document.querySelector(`#team-${i} .guess`).value.trim() === '') {
@@ -68,26 +70,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     renderScoreboard();
     document.querySelector('.controls').classList.add('hidden');
-    if (currentRound >= rounds) {
-      showEndPopup();
-    } else {
-      showRoundPopup();
-    }
+    if (currentRound >= rounds) showEndPopup(); else showRoundPopup();
   });
 
-  // show the "Next Up" popup
+  // Display Next-Up popup
   function showRoundPopup() {
+    // show next players
     roundPlayers.innerHTML = teams.map(t => {
       const p = pickNext(t);
       t.currentPlayer = p;
       return `<p><strong>${p}</strong></p>`;
     }).join('');
 
+    // leaderboard
     roundBoard.innerHTML = `<h2>Leaderboard</h2><ul>${
       teams.map(t => `<li>${t.players.join(', ')}: ${t.total}</li>`).join('')
     }</ul>`;
-
-    // click-to-edit in popup
     roundBoard.querySelectorAll('li').forEach((li, i) => {
       li.addEventListener('click', () => {
         const ans = prompt(`New score for ${teams[i].players.join(', ')}:`, teams[i].total);
@@ -99,23 +97,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
-
     roundPopup.classList.remove('hidden');
   }
 
-  // advance to the round
+  // Next Round button in popup
   roundStartBtn.addEventListener('click', () => {
     roundPopup.classList.add('hidden');
-    if (currentRound >= rounds) {
-      showEndPopup();
-    } else {
-      startRound();
-    }
+    if (currentRound >= rounds) showEndPopup(); else startRound();
   });
 
-  // render a game round
+  // Render a round: display three prompts and cards
   function startRound() {
-    promptEl.textContent = prompts[currentRound] || '';
+    // display three prompts
+    for (let i = 0; i < 3; i++) {
+      promptEls[i].textContent = prompts[currentRound + i] || '';
+    }
+
     teamsContainer.innerHTML = '';
     teams.forEach((t, i) => {
       const num = Math.floor(Math.random() * 100) + 1;
@@ -131,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentRound++;
   }
 
-  // footer scoreboard
+  // Footer scoreboard
   function renderScoreboard() {
     scoreboardDiv.innerHTML = `<ul>${
       teams.map(t => `<li>${t.players.join(', ')}: ${t.total}</li>`).join('')
@@ -148,25 +145,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // final rankings popup
+  // Final rankings
   function showEndPopup() {
     rankingList.innerHTML = '';
-    [...teams]
-      .sort((a, b) => a.total - b.total)
-      .forEach((t, i) => {
-        const li = document.createElement('li');
-        li.className = ['gold', 'silver', 'bronze'][i] || '';
-        li.textContent = `${t.players.join(', ')} — ${t.total} pts`;
-        rankingList.appendChild(li);
-      });
+    [...teams].sort((a, b) => a.total - b.total).forEach((t, i) => {
+      const li = document.createElement('li');
+      li.className = ['gold', 'silver', 'bronze'][i] || '';
+      li.textContent = `${t.players.join(', ')} — ${t.total} pts`;
+      rankingList.appendChild(li);
+    });
     endPopup.classList.remove('hidden');
   }
   restartBtn.addEventListener('click', () => location.reload());
 
   // utils
   function shuffle(arr) { return arr.slice().sort(() => Math.random() - 0.5); }
-  function pickNext(team) {
-    if (!team.queue.length) team.queue = shuffle(team.players);
-    return team.queue.shift();
-  }
+  function pickNext(team) { if (!team.queue.length) team.queue = shuffle(team.players); return team.queue.shift(); }
 });
